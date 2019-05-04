@@ -1,17 +1,23 @@
 {
-  "name": "server",
-  "version": "0.0.0",
-  "private": true,
+  "name": "tictacchamp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "start": "node ./bin/www"
+    "test": "start"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ebarr006/TicTacChamp.git"
+  },
+  "author": "Emilio Barreiro",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ebarr006/TicTacChamp/issues"
+  },
+  "homepage": "https://github.com/ebarr006/TicTacChamp#readme",
   "dependencies": {
-    "cookie-parser": "~1.4.3",
-    "cors": "^2.8.5",
-    "debug": "~2.6.9",
-    "express": "~4.16.0",
-    "http-errors": "~1.6.2",
-    "jade": "~1.11.0",
-    "morgan": "~1.9.0"
+    "express": "^4.16.4",
+    "socket.io": "^2.2.0"
   }
 }
