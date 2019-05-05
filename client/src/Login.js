@@ -12,12 +12,6 @@ class Login extends Component {
     socket = socketIOClient(this.state.endpoint)
   }
 
-  // componentDidMount() {
-  //   const { endpoint } = this.state
-  //   const socket = socketIOClient(endpoint)
-  //   socket.emit('connection')
-  // }
-
   handleSubmit = (event) => {
     event.preventDefault()
     const data = this.state

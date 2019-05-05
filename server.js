@@ -13,6 +13,8 @@ app.get('/', function(req, res,next) {
     res.send({express: 'BACKEND CONNECTED TO REACT'});
 });
 
+// work on matchmaking next
+
 io.on('connection', function(client) {
   console.log('[ client connected ]')
   client.join('lobby')
