@@ -1,23 +1,20 @@
 import React, { Component } from 'react'
 import Button from '@material-ui/core/Button'
 
-// import socketIOClient from 'socket.io-client'
-// var socket
-
 class Lobby extends Component {
   constructor(props) {
     super(props)
-    this.handleClick = this.handleClick.bind(this)
+    this.handler = this.handler.bind(this)
   }
 
-  handleClick() {
-    this.props.update('welcome')
+  handler() {
+    this.props.update('welcome', 'exit lobby', '')
   }
 
   render () {
     return (
       <div>
-        <Button onClick={this.props.update('welcome')}>back</Button>
+        <Button onClick={this.handler}>back</Button>
         <h1>Lobby</h1>
       </div>
     )

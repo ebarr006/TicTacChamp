@@ -6,7 +6,6 @@ var gameSetup = require('./GameSetup')
 var port = 8080;
 
 var games = []  // list of games in progress
-var playerCount = 0
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res,next) {
@@ -17,30 +16,25 @@ app.get('/', function(req, res,next) {
 
 io.on('connection', function(client) {
   console.log('[ client connected ]')
-  client.join('lobby')
   client.on('join', function(username) {
+    client.join('server')
     client.username = username
-    console.log(`username: ${client.username}`)
-    io.emit('playerUpdate', playerCount++)
+    console.log(`${client.username} has joined the lobby`)
     console.log(clients())
-
   });
+
+  client.on('exit lobby', function() {
+    console.log(`${client.username} has left the lobby`)
+    // add tracking client id
+  })
 
   client.on('disconnect', function(client) {
     console.log('[ client disconnected ]')
-    try {
-      if (clients().length) {
-        io.emit('playerUpdate', clients().length)
-        console.log(clients())
-      } else {
-        console.log('Lobby is now empty')
-      }
-    } catch(err) {}
   })
 })
 
 var clients = () => {
-  return Object.keys(io.sockets.adapter.rooms['lobby']['sockets'])
+  return Object.keys(io.sockets.adapter.rooms['server']['sockets'])
 }
 
 
