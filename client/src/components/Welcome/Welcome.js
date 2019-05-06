@@ -1,34 +1,31 @@
 import React, { Component } from 'react'
 import TextField from '@material-ui/core/TextField'
-import classNames from 'classnames'
 import socketIOClient from 'socket.io-client'
 
 var socket
 
-class AliasContainer extends Component {
+class Welcome extends Component {
   constructor(props) {
     super(props)
     this.state = {
       endpoint: 'http://localhost:8080',
-      username: ''
+      username: '',
     }
     socket = socketIOClient(this.state.endpoint)
     this.handleChange = this.handleChange.bind(this)
-    // this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleChange(event) {
     if (event.key === 'Enter') {
       // event.preventDefault()
       socket.emit('join', event.target.value)
+      this.props.update('lobby')
       return
     }
     this.setState({ username : event.target.value})
-
   }
 
   render () {
-    const {username} = this.state
     return (
       <div>
         <h1>TicTacChamp</h1>
@@ -36,6 +33,7 @@ class AliasContainer extends Component {
         <TextField
           type={'text'}
           label={'alias'}
+          site={this.props.page}
           onKeyPress={this.handleChange}
         />
       </div>
@@ -43,4 +41,4 @@ class AliasContainer extends Component {
   }
 }
 
-export default AliasContainer
+export default Welcome

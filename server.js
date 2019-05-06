@@ -10,7 +10,7 @@ var playerCount = 0
 
 app.use(express.static(__dirname + '/public'));
 app.get('/', function(req, res,next) {
-    res.send({express: 'BACKEND CONNECTED TO REACT'});
+    res.send({express: 'CONNECTED TO REACT @ PORT 3000'});
 });
 
 // work on matchmaking next
@@ -18,8 +18,6 @@ app.get('/', function(req, res,next) {
 io.on('connection', function(client) {
   console.log('[ client connected ]')
   client.join('lobby')
-  if (clients().length) playerCount = clients.length
-  io.emit('playerUpdate', playerCount)
   client.on('join', function(username) {
     client.username = username
     console.log(`username: ${client.username}`)
