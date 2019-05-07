@@ -14,6 +14,8 @@ class App extends Component {
     }
     this.socket = socketIOClient(this.state.endpoint)
     this.updateClientState = this.updateClientState.bind(this)
+    this.joinGame = this.joinGame.bind(this)
+    this.leaveGame = this.leaveGame.bind(this)
   }
 
   updateClientState(newPage, signal, value) {
@@ -25,16 +27,33 @@ class App extends Component {
     })
     this.socket.emit(signal, value)
   }
+
+  joinGame() {
+    this.socket.emit('joinGame')
+  }
+
+  leaveGame() {
+    this.socket.emit('leaveGame')
+  }
+
   renderView() {
     let state = this.state.page
     var component
     switch(state) {
       case 'welcome':
-        component = <Welcome {...this.props} update={this.updateClientState} />
+        component = <Welcome
+          {...this.props}
+          update={this.updateClientState}
+        />
         break;
 
       case 'lobby':
-        component = <Lobby {...this.props} update={this.updateClientState} />
+        component = <Lobby
+          {...this.props}
+          update={this.updateClientState}
+          join={this.joinGame}
+          leave={this.leaveGame}
+        />
         break;
 
       default:
