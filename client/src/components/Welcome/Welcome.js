@@ -4,13 +4,12 @@ import TextField from '@material-ui/core/TextField'
 class Welcome extends Component {
   constructor(props) {
     super(props)
-    this.handler = this.handler.bind(this)
+    this.submit = this.submit.bind(this)
   }
 
-  handler(event) {
+  submit(event) {
     if (event.key === 'Enter') {
-      this.props.update('lobby', 'join', event.target.value)
-      return
+      this.props.action(event.target.value)
     }
   }
 
@@ -22,7 +21,7 @@ class Welcome extends Component {
         <TextField
           type={'text'}
           label={'alias'}
-          onKeyPress={this.handler}
+          onKeyPress={this.submit}
         />
       </div>
     )
