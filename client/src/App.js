@@ -18,36 +18,29 @@ class App extends Component {
     this.joinLobby = this.joinLobby.bind(this)
     this.exitLobby = this.exitLobby.bind(this)
     this.joinGame = this.joinGame.bind(this)
-    this.leaveGame = this.leaveGame.bind(this)
-    this.validate = this.validate.bind(this)
+    this.exitGame = this.exitGame.bind(this)
 
     this.views = {
       welcome: <Welcome {...this.props} action={this.joinLobby}/>,
       lobby: <Lobby {...this.props} update={this.exitLobby} action={this.joinGame} />,
-      game: <Game {...this.props} action={this.leaveGame} />
+      game: <Game {...this.props} action={this.exitGame} />
     }
   }
   // FYI setState takes a callBack
-
-  validate(name) {
-    var res
-    console.log('2. in validate: ' + new Date().getMinutes() + ':' + new Date().getSeconds())
-    console.log('3. above .emit() | ' + new Date().getMinutes() + ':' + new Date().getSeconds())
-    this.socket.emit('validate', name, function(found) {
-      console.log('start emitting to server: ' + found)
-      res = found
-      console.log('5. finish emit: ' + new Date().getMinutes() + ':' + new Date().getSeconds())
-    })
-    console.log('6. outside emit, about to leave validate ' + new Date().getMinutes() + ':' + new Date().getSeconds())
-    return res
-  }
-
 
   changePage(p) {
     let prevState = this.state
     this.setState({
       ...prevState,
       page: p
+    })
+  }
+
+  componentDidMount() {
+    var that = this
+    this.socket.on('deletingGame', function(message) {
+      console.log(message)
+      that.changePage('lobby')
     })
   }
 
@@ -67,12 +60,12 @@ class App extends Component {
     this.socket.emit('exitLobby', '')
   }
 
-  joinGame(name) {
+  joinGame() {
     this.changePage('game')
     this.socket.emit('joinGame')
   }
 
-  leaveGame() {
+  exitGame() {
     this.changePage('lobby')
     this.socket.emit('exitGame')
   }
@@ -91,4 +84,7 @@ class App extends Component {
     );
   }
 }
+
+
+
 export default App;

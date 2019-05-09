@@ -7,10 +7,10 @@ class Game extends Component {
     this.state = {
       opponent: ''
     }
-    this.leaveGame = this.leaveGame.bind(this)
+    this.exitGame = this.exitGame.bind(this)
   }
 
-  leaveGame() {
+  exitGame() {
     this.props.action()
   }
 
@@ -19,7 +19,7 @@ class Game extends Component {
       <div>
       <h1>Game</h1>
         <p>You have been matched with {this.opponent}</p>
-        <Button onClick={this.leaveGame}>Leave Game</Button>
+        <Button onClick={this.exitGame}>Leave Game</Button>
       </div>
     )
   }

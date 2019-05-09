@@ -9,34 +9,59 @@ app.get('/', function(req, res,next) {
     res.send({express: 'CONNECTED TO REACT @ PORT 3000'});
 });
 
-function GameManager() {
-  this.games = []
+function User(id) {
+  this.id = id,
+  this.name = ''
 }
 
-};
-
 function Game() {
-  this.available = true,
   this.id = Math.random().toString(36).substr(2, 8),
+  this.available = true,
   this.p1 = null,
   this.p2 = null
 }
 
-var manager = new GameManager()
-var users = []
+var UserList = []
+var GameList = []
+
+function updateName(id, name) {
+  for (var i = 0; i < UserList.length; ++i) {
+    if (UserList[i].id === id) {
+      UserList[i].name = name
+    }
+  }
+}
+
+function returnPlayerObject(name) {
+  for (var i = 0; i < UserList.length; ++i) {
+    if (UserList[i].name === name) {
+      return UserList[i]
+    }
+  }
+}
+
+function returnGameObject(id) {
+  for (var i = 0; i < GameList.length; ++i) {
+    if (GameList[i].id === id) {
+      return GameList[i]
+    }
+  }
+}
+
 
 io.on('connection', function(client) {
   console.log(`[ ${client.id} connected ]`)
-  // add newly connected client to users[] as object {id: the id, name: ''}
-  users.push({id: client.id, user: ''})
-  // console.log(users)
+  console.log('All: ' + Object.keys(io.sockets.adapter.rooms))
+  var temp = new User(client.id)
+  UserList.push(temp)
 
   client.on('joinLobby', function(username) {
+    client.join('asdfasdfasd')
     client.username = username
-    client.join('lobby')
-    console.log(`${client.username} has joined the lobby`)
+    updateName(client.id, username)
+    console.log(`${username} has joined the lobby`)
+    console.log(UserList)
   })
-
 
   client.on('exitLobby', function() {
     client.leave('lobby')
@@ -44,112 +69,58 @@ io.on('connection', function(client) {
   })
 
   client.on('joinGame', function() {
-    var found = false
-    var index
-    // search for client in the list of games
-    for (i = 0; i < manager.games.length; ++i) {
-      if (manager.games[i].p1 === client.username || manager.games[i].p2 === client.username) {
-        found = true
-        index = i
+    // search list of games for an open spot in existing game list
+    for (var i = 0; i < GameList.length; ++i) {
+      // if you find one, raise flag and store index
+      if (GameList[i].available) {
+        // EMIT NOTIFICATION TO SOCKET
+        console.log(`I found an existing game for you, adding you to GAME ${GameList[i].id}`)
+        GameList[i].p2 = returnPlayerObject(client.username)
+        GameList[i].available = false
+        client.join(GameList[i].id)
+        console.log(GameList[i])
+        return
       }
     }
-    // if found, dont join/create new game (do nothing)
-    if (found) {
-      // MAYBE ADD AN EMIT TO THIS SOCKET CLIENT.ID
-      console.log(`YOURE ALREADY IN GAME ${manager.games[index].id}`)
-    }
-    // if !found...
-    else {
-      // search list of games for an open spot in existing game list
-      for (i = 0; i < manager.games.length; ++i) {
-        // if you find one, raise flag and store index
-        if (manager.games[i].p1 == null || manager.games[i].p2 == null) {
-          found = true
-          index = i
+    // EMIT NOTIFICATION TO SOCKET
+    var temp = new Game()
+    temp.p1 = returnPlayerObject(client.username)
+    client.join(temp.id)
+    GameList.push(temp)
+    console.log(`No available spots in existing matches, creating GAME ${temp.id}`)
+    console.log(temp)
+  })
+
+  client.on('exitGame', function() {
+    for (var i = 0; i < GameList.length; ++i) {
+      var game = GameList[i]
+      if (client.username === game.p1.name || client.username === game.p2.name) {
+        var id = game.id
+        console.log('deleting GAME: ' + id)
+        GameList.splice(i, 1)
+        if (client.username === game.p1.name) {
+          client.leave(id)
+          console.log(`I'm ${game.p1.name} emitting GAME ${id} to ${game.p2.name}`)
+          io.to(game.p2.id).emit('deletingGame', 'Your opponent has quit the match, returning you to lobby')
         }
-      }
-      // i can reuse found here because its inside else clause, implying its still false
-      if (found) {
-        // EMIT NOTIFICATION TO SOCKET
-        console.log(`I found an existing game for you, adding you to GAME ${manager.games[index].id}`)
-        // connect this client to that game (socket.join(games.[i].id))
-        client.join(manager.games[index].id)
-        // assign clients username to player 2 spot of said game
-        manager.games[index].p2 = client.username
-        // change game availablilty status to false
-        manager.games[index].available = false
-      }
-      // you didnt find an open spot
-      else {
-        // create game
-        var temp = new Game()
-        temp.p1 = client.username
-        manager.games.push(temp)
-        // EMIT NOTIFICATION TO SOCKET
-        console.log(`No available spots in existing matches, creating GAME ${temp.id}`)
-        // ADD SOCKETLINE HERE TO JOIN GAME.ID
-        client.join(temp.id)
+        else if (typeof(game.p2.name) !== 'undefined' && client.username === game.p2.name) {
+          client.leave(id)
+          console.log(`I'm ${game.p2.name} emitting GAME ${id} to ${game.p1.name}`)
+          io.to(game.p1.id).emit('deletingGame', 'Your opponent has quit the match, returning you to lobby')
+        }
       }
     }
   })
 
-  client.on('exitGame', function() {
-    // find which game the client belongs to,
-    // remove them from that game
-    var index
-    // shift remaining player p1 spot, empty out p2 slot
-    for (i = 0; i < manager.games.length; ++i) {
-      // client is p1 of the game, overwrite p1 with p2 (shift) and empty out p2
-      if (manager.games[i].p1 === client.username) {
-        manager.games[i].p1 = manager.games[i].p2
-        manager.games[i].p2 = null
-        index = i
-      }
-      // if client is p2, just empty out p2
-      else if (manager.games[i].p2 === client.username) {
-        manager.games[i].p2 = null
-        index = i
-      }
-    }
-    // update this game's availablilty
-    manager.games[index].available = true
-    console.log(`${client.username} has left the game.`)
-    // if (both game spots (p1 & p2) are now empty (null))
-    //    delete game from games list
-    if (manager.games[index].p1 === null && manager.games[index].p2 === null) {
-      console.log(`Deleting GAME ${manager.games[index].id} ... no more players in the game`)
-      console.log(`Player1: ${manager.games[index].p1}\nPlayer2: ${manager.games[index].p2}`)
-      manager.games.splice(index, 1);
-    }
+  client.on('deletingGame', function(id) {
+    console.log(`I'm ${client.username} receiving deletingGame`)
+    client.leave(id)
   })
 
   client.on('disconnect', function(client) {
     console.log('[ client disconnected ]')
-    // REMOVE USER FROM USERS[] by client.id
-
-    // need a way detect this from other player and remove them from game
-
   })
 })
-
-function nameTaken(name, id) {
-  console.log(`using: ${name} and id: ${id}`)
-  console.log('All: ' + Object.keys(io.sockets.adapter.rooms))
-  for (var i in users) {
-    if (users[i]['user'] === name) {
-      console.log(`${users[i]['user']} already in use`)
-      return true
-    }
-  }
-
-  for (var i in users) {
-    if (users[i]['id'] === id) {
-      users[i]['user'] = name
-    }
-  }
-
-  return false
-}
 
 server.listen(port, () => {
   console.log(`TicTacChamp is listening on port ${port}`)
