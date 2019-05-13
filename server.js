@@ -56,7 +56,7 @@ io.on('connection', function(client) {
   UserList.push(temp)
 
   client.on('joinLobby', function(username) {
-    client.join('asdfasdfasd')
+    client.join('lobby') // do i need this?
     client.username = username
     updateName(client.id, username)
     console.log(`${username} has joined the lobby`)

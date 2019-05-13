@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Welcome from './components/Welcome/Welcome'
 import Lobby from './components/Lobby/Lobby'
 import Game from './components/Game/Game'
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
+import ThemeStyle from './components/Theme/muiTheme'
 import socketIOClient from 'socket.io-client'
 import './App.css'
 
@@ -76,11 +78,11 @@ class App extends Component {
 
   render () {
     return (
+      <MuiThemeProvider theme={ThemeStyle}>
       <div>
-        <p>State: {this.state.page}</p>
-        <p>Alias: {this.state.user}</p>
-        {this.renderView()}
+      {this.renderView()}
       </div>
+      </MuiThemeProvider>
     );
   }
 }

@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
 import Button from '@material-ui/core/Button'
 
+const LobbyComponent = {
+  width: '100%',
+  height: '730px',
+  paddingTop: '10px',
+  background: '#c7a4ff',
+}
+
 class Lobby extends Component {
   constructor(props) {
     super(props)
@@ -18,10 +25,10 @@ class Lobby extends Component {
 
   render () {
     return (
-      <div>
-        <Button onClick={this.leaveLobby}>return to login</Button>
+      <div style={LobbyComponent}>
+        <Button onClick={this.leaveLobby} color='secondary'>return to login</Button>
         <h1>Lobby</h1>
-        <Button onClick={this.join}>join game</Button>
+        <Button onClick={this.join} color='secondary'>join game</Button>
       </div>
     )
   }
