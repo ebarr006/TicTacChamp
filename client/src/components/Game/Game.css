@@ -1,0 +1,91 @@
+.ticTacToe {
+  display: flex;
+  justify-content: space-between;
+  width: 400px;
+  height: 400px;
+  padding: 10px;
+  border: 1px solid #e4e4e4;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tile {
+  display: block;
+  width: 125px;
+  height: 125px;
+  border: 1px solid #e4e4e4;
+  color: #e4e4e4;
+  font-size: 5em;
+  font-weight: 400;
+  color: blue;
+  text-align: center;
+}
+
+.header {
+  display: flex;
+  height: 50px;
+  width: 100%;
+  text-align: center;
+  /* border: 2px dotted green; */
+}
+
+.window {
+  height: 100%;
+  width: 100%;
+  /* border: 2px solid pink; */
+  text-align: center;
+}
+
+.contentContainer {
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 850px;
+  height: 500px;
+  /* border: 2px solid blue; */
+}
+
+.innerContainer {
+  height: auto;
+  /* border: 2px solid black; */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.chatWindow {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 400px;
+  height: 420px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px dashed red;
+  text-align: center;
+  align-items: flex-start;
+}
+
+.chatHeader {
+  height: 40px;
+  width: inherit;
+  /* border: 3px dashed yellow; */
+}
+
+h3.chatH3 {
+  font-size: 20px;
+}
+
+p.chatText {
+  font-size: 15px;
+}
+
+.chatBody {
+  width: 400px;
+  height: 380px;
+  /* border: 5px solid orange; */
+}

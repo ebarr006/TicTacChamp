@@ -1,13 +1,11 @@
 import React, { Component } from 'react'
 import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
 
 const WelcomeComponent = {
   width: '100%',
   height: '100%',
   paddingTop: '10px',
   background: '#c7a4ff',
-  // background: '#bc9cf2',
   boxSizing: 'border-box',
   position: 'absolute'
 }
@@ -35,27 +33,16 @@ const Footer = {
   color:'#FFFFFF'
 }
 
-const ButtonStyle = {
-  paddingTop:'10px',
-  textAlign: 'center'
-}
-
-
 class Welcome extends Component {
   constructor(props) {
     super(props)
     this.submit = this.submit.bind(this)
-    this.handleClick = this.handleClick.bind(this)
   }
 
   submit(event) {
     if (event.key === 'Enter') {
       this.props.action(event.target.value)
     }
-  }
-
-  handleClick(event) {
-    this.props.action(event.target.value)
   }
 
   render () {
@@ -65,14 +52,9 @@ class Welcome extends Component {
         <h1 style={Header}>Tic {dot} Tac {dot} Champ</h1>
         <h3 style={Subtitle}>Challengers await</h3>
         <div style={TextBox}>
-          <TextField type={'text'} label={'alias'} onKeyPress={this.submit} style={TextBox} />
+          <TextField type={'text'} ref='aliasField' label={'alias'} onKeyPress={this.submit} style={TextBox} />
         </div>
-        <footer style={ButtonStyle}>
-          <Button variant='outlined' color='secondary' onClick={this.handleClick}>
-            Join Lobby
-          </Button>
-        </footer>
-
+        <footer style={Footer}><i><b>Thank you, Nick & LP Team</b></i></footer>
       </div>
 
     )

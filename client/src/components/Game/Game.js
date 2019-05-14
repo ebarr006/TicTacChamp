@@ -1,39 +1,94 @@
-import React, { Component } from 'react'
-import Board from './../Board/Board'
-import Button from '@material-ui/core/Button'
+import React from 'react'
+import Modal from '@material-ui/core/Modal';
+import Dialog from '@material-ui/core/Dialog';
+import './Game.css'
+
+function Tile(props) {
+  return (
+    <div className="tile" onClick={props.onClick}>
+      {props.value}
+    </div>
+  );
+}
+
+class Board extends React.Component {
+  renderTile(i) {
+    return (
+      <Tile
+        value={this.props.tiles[i]}
+        onClick={() => this.props.onClick(i)}
+      />
+    );
+  }
+
+  render() {
+    return (
+      <div className="ticTacToe">
+        <div className="column">
+          {this.renderTile(0)}
+          {this.renderTile(1)}
+          {this.renderTile(2)}
+        </div>
+        <div className="column">
+          {this.renderTile(3)}
+          {this.renderTile(4)}
+          {this.renderTile(5)}
+        </div>
+        <div className="column">
+          {this.renderTile(6)}
+          {this.renderTile(7)}
+          {this.renderTile(8)}
+        </div>
+      </div>
+    );
+  }
+}
 
 class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      history: [{
-        squares: Array(9).fill(null)
-      }],
+      tiles: Array(9).fill(null),
       xIsNext: true
     };
+    // this.socket = socketIOClient('http://localhost:8080')
+    this.opponent = null;
+  }
+
+  componentDidMount() {
+    var that = this
+    this.props.socket.on('oppInfo', function(opp) {
+      console.log('from opponent: ' + opp.id)
+      let prevState = that.state
+      that.setState({
+        ...prevState,
+        opponent: opp
+      })
+    })
+    this.props.socket.on('oppTurn', function(data) {
+      console.log('data: ' + data)
+      that.handleClick(data)
+    })
   }
 
   handleClick(i) {
-    const history = this.state.history;
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
-    if (calculateWinner(squares) || squares[i]) {
+    const tiles = this.state.tiles
+    if (calculateWinner(tiles) || tiles[i]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.props.socket.emit('turn', {
+      tile: i,
+      to: this.state.opponent.id
+    })
+    tiles[i] = this.state.xIsNext ? 'X' : 'O';
     this.setState({
-      history: history.concat([{
-        squares: squares
-      }]),
+      tiles: tiles,
       xIsNext: !this.state.xIsNext,
     });
   }
 
   render() {
-    const history = this.state.history;
-    const current = history[history.length - 1];
-    const winner = calculateWinner(current.squares);
-
+    const winner = calculateWinner(this.state.tiles);
     let status;
     if (winner) {
       status = 'Winner: ' + winner;
@@ -42,23 +97,34 @@ class Game extends React.Component {
     }
 
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
-          />
+      <div className="window">
+        <div className="header">
+          {status}
         </div>
-        <div className="game-info">
-          <div>{status}</div>
-          <ol>{/* TODO */}</ol>
+        <div className="contentContainer">
+          <div className="innerContainer">
+            <Board
+              tiles={this.state.tiles}
+              onClick={(i) => this.handleClick(i)}
+            />
+          </div>
+          <div className="innerContainer">
+            <div className="chatWindow">
+              <div className="chatHeader">
+                <h3 className="chatH3">Game Chat</h3>
+              </div>
+              <div className="chatBody">
+                <p className="chatText">this is where text will display</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 }
 
-function calculateWinner(squares) {
+function calculateWinner(tiles) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -71,8 +137,8 @@ function calculateWinner(squares) {
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+    if (tiles[a] && tiles[a] === tiles[b] && tiles[a] === tiles[c]) {
+      return tiles[a];
     }
   }
   return null;

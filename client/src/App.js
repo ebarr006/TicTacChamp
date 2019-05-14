@@ -25,7 +25,7 @@ class App extends Component {
     this.views = {
       welcome: <Welcome {...this.props} action={this.joinLobby}/>,
       lobby: <Lobby {...this.props} update={this.exitLobby} action={this.joinGame} />,
-      game: <Game {...this.props} action={this.exitGame} />
+      game: <Game {...this.props} socket={this.socket} action={this.exitGame} />
     }
   }
   // FYI setState takes a callBack
@@ -80,7 +80,7 @@ class App extends Component {
     return (
       <MuiThemeProvider theme={ThemeStyle}>
       <div>
-      {this.renderView()}
+        {this.renderView()}
       </div>
       </MuiThemeProvider>
     );

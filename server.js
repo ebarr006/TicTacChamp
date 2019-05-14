@@ -48,6 +48,30 @@ function returnGameObject(id) {
   }
 }
 
+function findPlayerInGame(username) {
+  for (var i = 0; i < GameList.length; ++i) {
+    if (GameList[i].p1.name === username || GameList[i].p2.name === username) {
+      return GameList[i]
+    }
+  }
+}
+
+function updateUserList() {
+  var hit
+  var all = Object.keys(io.sockets.adapter.rooms)
+  for (var i = 0; i < UserList.length; ++i) {
+    hit = false
+    for (var j = 0; j < all.length; ++j) {
+      if (UserList[i].id == all[j]) {
+        hit = true
+      }
+    }
+    if (!hit) {
+      UserList.splice(i, 1)
+    }
+  }
+}
+
 
 io.on('connection', function(client) {
   console.log(`[ ${client.id} connected ]`)
@@ -73,11 +97,12 @@ io.on('connection', function(client) {
     for (var i = 0; i < GameList.length; ++i) {
       // if you find one, raise flag and store index
       if (GameList[i].available) {
-        // EMIT NOTIFICATION TO SOCKET
         console.log(`I found an existing game for you, adding you to GAME ${GameList[i].id}`)
         GameList[i].p2 = returnPlayerObject(client.username)
         GameList[i].available = false
         client.join(GameList[i].id)
+        io.to(GameList[i].p1.id).emit('oppInfo', GameList[i].p2)
+        io.to(GameList[i].p2.id).emit('oppInfo', GameList[i].p1)
         console.log(GameList[i])
         return
       }
@@ -89,6 +114,11 @@ io.on('connection', function(client) {
     GameList.push(temp)
     console.log(`No available spots in existing matches, creating GAME ${temp.id}`)
     console.log(temp)
+  })
+
+  client.on('turn', function(data) {
+    console.log('getting inside the turn server: ' + data.tile)
+    io.to(data.to).emit('oppTurn', data.tile)
   })
 
   client.on('exitGame', function() {
@@ -119,6 +149,8 @@ io.on('connection', function(client) {
 
   client.on('disconnect', function(client) {
     console.log('[ client disconnected ]')
+    updateUserList()
+    console.log(UserList)
   })
 })
 
